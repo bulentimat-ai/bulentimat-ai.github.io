@@ -7,6 +7,8 @@ on:
       - 'site.zip'
       - '.github/workflows/deploy.yml'
       - 'scripts/patch_contact.py'
+      - 'scripts/patch_portfolio_shop.py'
+      - 'assets/css/portfolio-v2.css'
   workflow_dispatch:
 
 permissions:
@@ -43,6 +45,19 @@ jobs:
 
       - name: Insert bilingual email contacts
         run: python3 scripts/patch_contact.py _site
+
+      - name: Apply approved bilingual Books, Apps and Shop design
+        run: python3 scripts/patch_portfolio_shop.py _site
+
+      - name: Validate new home and Shop pages
+        run: |
+          test -s _site/shop/index.html
+          test -s _site/tr/shop/index.html
+          test -s _site/assets/css/portfolio-v2.css
+          grep -q 'portfolio-shop-grid' _site/index.html
+          grep -q 'portfolio-shop-grid' _site/tr/index.html
+          grep -q 'app-symbol gentian' _site/index.html
+          grep -q 'app-symbol rotam' _site/tr/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
