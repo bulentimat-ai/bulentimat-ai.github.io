@@ -6,6 +6,7 @@ on:
     paths:
       - 'site.zip'
       - '.github/workflows/deploy.yml'
+      - 'scripts/patch_contact.py'
   workflow_dispatch:
 
 permissions:
