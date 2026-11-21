@@ -211,6 +211,7 @@ for rel in ('index.html', 'tr/index.html'):
     if html.index('books-feature') >= html.index('apps-feature') or html.index('apps-feature') >= html.index('story-feature'):
         raise SystemExit(f"Wrong feature order: {rel}")
     if html.count('class="store-ribbon') != 2 or html.count('class="app-symbol') != 2:
+        print("QA counts", html.count('class="store-ribbon'), html.count('class="app-symbol'))
         raise SystemExit(f"Store ribbons or brand icon count failed: {rel}")
 for rel in ("shop/index.html", "tr/shop/index.html"):
     text = (root / rel).read_text(encoding="utf-8")
