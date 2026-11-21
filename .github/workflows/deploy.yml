@@ -40,6 +40,9 @@ jobs:
           echo "Files ready for publishing:"
           find _site -type f | wc -l
 
+      - name: Insert bilingual email contacts
+        run: python3 scripts/patch_contact.py _site
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
