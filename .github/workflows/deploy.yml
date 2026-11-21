@@ -1,0 +1,54 @@
+name: Publish portfolio from site.zip
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site.zip'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: ${{ hashFiles('site.zip') != '' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout portfolio repository
+        uses: actions/checkout@v4
+
+      - name: Extract exact site release
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          unzip -q site.zip -d _site
+          test -s _site/index.html
+          test -s _site/tr/index.html
+          test -s _site/assets/css/site.css
+          test -s _site/assets/previews/awooo-chronicles-preview.pdf
+          test -s _site/assets/previews/awooo-the-tale-of-a-husky-preview.pdf
+          echo "Files ready for publishing:"
+          find _site -type f | wc -l
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
