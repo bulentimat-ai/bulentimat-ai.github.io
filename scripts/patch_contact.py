@@ -34,6 +34,8 @@ base_style = """
     color: var(--text);
   }
   .contact-main-link:hover { border-color: var(--green); }
+  .contact-whatsapp-link { margin-top: 12px; font-weight: 650; background: transparent; }
+  .contact-whatsapp-link small { font-weight: 500; }
   .contact-main-link small {
     display: block;
     color: var(--muted);
@@ -95,6 +97,8 @@ def make_contact(tr):
     main_desc = ("İş birlikleri, kitaplar ve genel sorular için benimle doğrudan iletişime geçebilirsiniz."
                  if tr else "For collaborations, books and general enquiries, contact me directly.")
     main_label = "Bülent İmat · Ana iletişim" if tr else "Bülent İmat · Main contact"
+    whatsapp_label = "WhatsApp · Hızlı mesaj" if tr else "WhatsApp · Quick message"
+    whatsapp_hint = "WhatsApp’tan yaz" if tr else "Chat on WhatsApp"
     project_kicker = "RESMÎ PROJELER" if tr else "OFFICIAL PROJECTS"
     project_title = "Uygulamalar ve destek" if tr else "Apps & support"
     project_desc = ("Uygulamaların resmî siteleri ile genel iletişim ve destek e-posta adresleri."
@@ -111,6 +115,7 @@ def make_contact(tr):
   <h2>{main_title}</h2>
   <p>{main_desc}</p>
   <a href="mailto:info@bulentimat.ch" class="contact-main-link"><span>{main_label}<small>info@bulentimat.ch</small></span><span class="contact-main-arrow" aria-hidden="true">↗</span></a>
+  <a href="https://wa.me/41782348214" target="_blank" rel="noopener noreferrer" class="contact-main-link contact-whatsapp-link"><span>{whatsapp_label}<small>{whatsapp_hint}</small></span><span class="contact-main-arrow" aria-hidden="true">↗</span></a>
 </section>
 <section class="contact-panel" id="official-projects">
   <span class="section-kicker">{project_kicker}</span>
@@ -132,6 +137,7 @@ def make_contact(tr):
 pattern = re.compile(r'<div class="contact-grid(?: contact-priority)?">.*?</div>\s*</main>', re.S)
 expected = (
     "mailto:info@bulentimat.ch",
+    "https://wa.me/41782348214",
     "https://gentianapp.com/",
     "mailto:info@gentianapp.com",
     "mailto:support@gentianapp.com",
@@ -164,4 +170,4 @@ for rel, tr in (("contact/index.html", False), ("tr/contact/index.html", True)):
     if not(content.index('id="primary-contact"') < content.index('id="official-projects"') < content.index('id="social-media"')):
         raise SystemExit(f"Incorrect contact order in {rel}")
     target.write_text(html, encoding="utf-8")
-    print(f"Validated contact priority and 10 links: {rel}")
+    print(f"Validated contact priority and 11 links: {rel}")
