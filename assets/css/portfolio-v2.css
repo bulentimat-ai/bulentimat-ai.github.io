@@ -1,0 +1,137 @@
+/* Bülent İmat portfolio · 2026 storefront refinement
+   Carefully scoped to the two homepage feature cards and Shop pages. */
+.feature-grid.portfolio-shop-grid{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:20px;
+  margin-top:20px;max-width:1120px;margin-left:auto;margin-right:auto
+}
+.portfolio-shop-grid .feature-panel{
+  padding:clamp(22px,3vw,36px);border:1px solid var(--line);
+  background:var(--panel);border-radius:24px;box-shadow:var(--shadow)
+}
+.portfolio-shop-grid .panel-heading{display:flex;gap:16px;align-items:flex-start;margin-bottom:24px}
+.portfolio-shop-grid .panel-heading h2{font-size:clamp(25px,2.3vw,33px);display:flex;gap:13px;align-items:center;margin:0}
+.portfolio-shop-grid .heading-symbol{font-weight:400;color:var(--green);font-size:.92em}
+.portfolio-shop-grid .panel-subtitle{margin:3px 0 0;font-size:clamp(13px,1.3vw,16px);color:var(--muted)}
+.portfolio-shop-grid .panel-heading .round-arrow{margin-left:auto;flex:none}
+.portfolio-shop-grid .home-books{max-width:800px;gap:clamp(16px,6vw,76px);margin:10px auto 26px}
+.portfolio-shop-grid .book-cover-frame{height:280px;max-width:190px;align-items:center;margin-bottom:9px}
+.portfolio-shop-grid .book-cover-frame img{max-height:270px;width:auto;object-fit:contain;box-shadow:0 10px 19px rgba(13,28,43,.15);border-radius:4px}
+.portfolio-shop-grid .home-book{min-width:0;gap:2px}
+.portfolio-shop-grid .home-book strong{font-size:clamp(13px,1.35vw,16px);line-height:1.25}
+.portfolio-shop-grid .home-book small{font-size:clamp(11px,1.2vw,13px);color:var(--muted)}
+.portfolio-shop-grid .home-apps{gap:16px}
+.portfolio-shop-grid .home-app{padding:17px 16px 15px;border-radius:20px}
+.portfolio-shop-grid .home-app-title{min-height:64px;margin-bottom:14px}
+.portfolio-shop-grid .home-app-title strong{font-size:clamp(14px,1.6vw,19px);line-height:1.2}
+.portfolio-shop-grid .home-app-title span:not(.app-symbol){font-size:clamp(11px,1.14vw,13px);line-height:1.35}
+.portfolio-shop-grid .app-symbol{
+  flex:none;display:block;width:56px;height:56px;border-radius:15px;
+  color:transparent;box-shadow:0 5px 15px rgba(15,36,52,.16);
+  background-repeat:no-repeat;background-color:#133047
+}
+/* Exactly the icon portions of the user's own original promotional banners.
+   No substitute glyph or generated brand symbol is used. */
+.portfolio-shop-grid .app-symbol.gentian{
+  background-image:url('../images/gentian-banner.webp');
+  background-size:1275% auto;background-position:36.9% 35.3%
+}
+.portfolio-shop-grid .app-symbol.rotam{
+  background-image:url('../images/rotam-banner.webp');
+  background-size:1090% auto;background-position:25.3% 42.6%
+}
+.portfolio-shop-grid .app-image-pair{height:260px;gap:10px}
+.portfolio-shop-grid .app-image-pair img{height:100%;max-width:47%;width:auto;object-fit:contain;object-position:top;border-radius:8px}
+.portfolio-shop-grid .card-text-link{text-align:center;font-size:14px;font-weight:780;padding-top:15px}
+.portfolio-shop-grid .home-app:hover{border-color:var(--green)}
+.portfolio-shop-grid .store-ribbon{
+  display:flex;align-items:center;justify-content:center;gap:20px;
+  margin-top:24px;min-height:80px;padding:12px clamp(14px,4vw,35px);
+  border-radius:17px;background:linear-gradient(100deg,rgba(41,105,87,.095),rgba(41,105,87,.055));
+  border:1px solid transparent;transition:transform .2s,border-color .2s
+}
+.portfolio-shop-grid .store-ribbon:hover{transform:translateY(-2px);border-color:rgba(41,105,87,.35)}
+.portfolio-shop-grid .store-ribbon-logo{flex:none;display:grid;place-items:center}
+.portfolio-shop-grid .amazon-wordmark{
+  position:relative;font-family:Arial,Helvetica,sans-serif;font-size:clamp(24px,3.8vw,42px);
+  font-weight:850;letter-spacing:-.065em;color:var(--ink);line-height:1
+}
+.portfolio-shop-grid .amazon-wordmark:after{
+  content:"";position:absolute;left:20%;right:4%;bottom:-7px;height:11px;
+  border-bottom:4px solid #ff9800;border-radius:0 0 60% 65%;
+  transform:rotate(-6deg)
+}
+.portfolio-shop-grid .appstore-icon{
+  width:48px;height:48px;background:linear-gradient(140deg,#1dc8f6,#0875ea);
+  border-radius:12px;display:grid;place-items:center;box-shadow:0 4px 12px rgba(0,115,214,.2)
+}
+.portfolio-shop-grid .appstore-icon svg{width:35px;height:35px}
+.portfolio-shop-grid .ribbon-divider{width:1px;height:42px;background:rgba(79,105,119,.38)}
+.portfolio-shop-grid .ribbon-copy{display:flex;flex-direction:column;min-width:0;line-height:1.12}
+.portfolio-shop-grid .ribbon-copy small{font-size:13px;color:var(--muted)}
+.portfolio-shop-grid .ribbon-copy strong{font-size:clamp(19px,2.1vw,27px);letter-spacing:-.035em}
+.portfolio-shop-grid .ribbon-arrow{
+  margin-left:auto;background:#147451;color:#fff;border-radius:12px;
+  width:47px;height:47px;display:grid;place-items:center;font-size:25px;flex:none
+}
+.portfolio-shop-grid .books-feature .store-ribbon{margin-top:19px}
+.shop-hero-sub{max-width:760px}
+.shop-content{max-width:1120px;margin:0 auto}
+.shop-section{margin-top:34px}
+.shop-section h2{font-size:clamp(24px,3vw,37px);margin-bottom:6px}
+.shop-section>p{color:var(--muted);margin:0 0 20px}
+.shop-product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.shop-product{padding:22px;border-radius:20px;border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;gap:12px}
+.shop-product img{width:100%;height:225px;object-fit:contain;object-position:center}
+.shop-product h3{font-size:19px;margin:2px 0}
+.shop-product p{color:var(--muted);font-size:13px;min-height:45px}
+.shop-product .button{align-self:flex-start;margin-top:auto}
+.shop-platform-note{padding:16px 19px;margin-top:14px;border-radius:14px;background:var(--panel-soft);color:var(--muted);font-size:13px}
+.shop-platform-link{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-weight:750;text-decoration:underline;text-underline-offset:3px}
+[data-theme=dark] .portfolio-shop-grid .store-ribbon{background:linear-gradient(115deg,#1e3939,#203a35)}
+[data-theme=dark] .portfolio-shop-grid .amazon-wordmark{color:#eff6f3}
+@media(max-width:760px){
+ .feature-grid.portfolio-shop-grid{gap:13px;margin-top:13px}
+ .portfolio-shop-grid .feature-panel{padding:20px 17px;border-radius:17px}
+ .portfolio-shop-grid .panel-heading{margin-bottom:14px}
+ .portfolio-shop-grid .panel-heading h2{font-size:23px;gap:10px}
+ .portfolio-shop-grid .panel-subtitle{font-size:12px;line-height:1.35}
+ .portfolio-shop-grid .home-books{gap:15px;margin:4px auto 15px}
+ .portfolio-shop-grid .book-cover-frame{height:183px;margin-bottom:7px}
+ .portfolio-shop-grid .book-cover-frame img{max-height:178px}
+ .portfolio-shop-grid .home-book strong{font-size:11.5px}
+ .portfolio-shop-grid .home-book small{font-size:11px}
+ .portfolio-shop-grid .home-apps{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .portfolio-shop-grid .home-app{padding:10px 9px 11px;border-radius:14px}
+ .portfolio-shop-grid .home-app-title{min-height:51px;gap:8px;margin-bottom:9px}
+ .portfolio-shop-grid .app-symbol{width:40px;height:40px;border-radius:11px}
+ .portfolio-shop-grid .home-app-title strong{font-size:11.5px}
+ .portfolio-shop-grid .home-app-title span:not(.app-symbol){font-size:10px}
+ .portfolio-shop-grid .app-image-pair{height:168px;gap:5px}
+ .portfolio-shop-grid .app-image-pair img{max-width:48%;border-radius:5px}
+ .portfolio-shop-grid .card-text-link{font-size:11px;padding-top:11px}
+ .portfolio-shop-grid .store-ribbon{padding:10px 14px;min-height:59px;gap:12px;margin-top:15px;border-radius:13px}
+ .portfolio-shop-grid .amazon-wordmark{font-size:27px}
+ .portfolio-shop-grid .amazon-wordmark:after{height:7px;border-width:3px}
+ .portfolio-shop-grid .ribbon-divider{height:32px}
+ .portfolio-shop-grid .ribbon-copy small{font-size:11px}
+ .portfolio-shop-grid .ribbon-copy strong{font-size:19px}
+ .portfolio-shop-grid .ribbon-arrow{width:35px;height:35px;border-radius:10px;font-size:20px}
+ .portfolio-shop-grid .appstore-icon{width:37px;height:37px;border-radius:10px}
+ .portfolio-shop-grid .appstore-icon svg{width:29px;height:29px}
+ .shop-product img{height:160px}
+ .shop-product{padding:17px}
+ .shop-product h3{font-size:16px}
+}
+@media(max-width:380px){
+ .portfolio-shop-grid .home-apps{gap:7px}
+ .portfolio-shop-grid .home-app-title{gap:5px}
+ .portfolio-shop-grid .app-symbol{width:35px;height:35px;border-radius:9px}
+ .portfolio-shop-grid .home-app-title strong{font-size:10px}
+ .portfolio-shop-grid .home-app-title span:not(.app-symbol){font-size:9.5px}
+ .portfolio-shop-grid .app-image-pair{height:155px}
+ .portfolio-shop-grid .ribbon-copy strong{font-size:16px}
+ .shop-product-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ .portfolio-shop-grid .store-ribbon{transition:none}
+}
