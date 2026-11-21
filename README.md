@@ -1,11 +1,17 @@
-# Bülent İmat — Portfolio
+# Bülent İmat — Apps, Books & Visual Stories
 
-Bilingual portfolio: Apps · Books · Visual Stories.
+This repository automatically publishes the prepared bilingual portfolio to **https://bulentimat-ai.github.io/**.
 
-## Deployment
+## First-time setup
 
-Upload the prepared `site.zip` bundle to the repository root using **Add file → Upload files**. The GitHub Actions workflow `.github/workflows/deploy.yml` will unzip it and deploy its contents to GitHub Pages. Only the authorized book-preview PDFs are included in the site bundle.
+1. Download the prepared release from ChatGPT under its exact filename **site.zip**. Do **not** extract it.
+2. Open **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**.
+3. In this repository open **Add file → Upload files** and upload **site.zip** to the root of the **main** branch.
+4. Commit the upload. The workflow in `.github/workflows/deploy.yml` extracts and publishes the complete website.
+5. See the **Actions** tab for deployment status.
 
-Site address: https://bulentimat-ai.github.io/
+Subsequent updates: upload a replacement `site.zip` to the same location and the website will redeploy.
 
-Source package is created separately and can be revised without affecting the existing Gentian or İsviçre Rotam repositories.
+**Privacy:** The release contains only the authorized first 4 PDF pages of *AWOOO CHRONICLES* and first 6 PDF pages of *AWOOO — The Tale of a Husky*. Full manuscripts are not included.
+
+Existing Gentian and İsviçre Rotam repositories are not modified.
