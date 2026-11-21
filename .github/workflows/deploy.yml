@@ -9,6 +9,7 @@ on:
       - 'scripts/patch_contact.py'
       - 'scripts/patch_portfolio_shop.py'
       - 'assets/css/portfolio-v2.css'
+      - 'assets/images/avatar-guney-clean.webp.b64'
   workflow_dispatch:
 
 permissions:
@@ -58,6 +59,17 @@ jobs:
           grep -q 'portfolio-shop-grid' _site/tr/index.html
           grep -q 'app-symbol gentian' _site/index.html
           grep -q 'app-symbol rotam' _site/tr/index.html
+
+      - name: Replace Güney portrait with clean original
+        run: |
+          set -euo pipefail
+          base64 -d assets/images/avatar-guney-clean.webp.b64 > _site/assets/images/avatar-guney.webp
+          echo "0fcc7f4f4d4d4ff3bced6855d8086d436bf9a7bec71acae4f7637ce5be6fdca6  _site/assets/images/avatar-guney.webp" | sha256sum --check
+          find _site -name index.html -type f -print0 | xargs -0 -r sed -i 's|avatar-guney.webp"|avatar-guney.webp?v=20261121-clean"|g'
+          grep -q 'avatar-guney.webp?v=20261121-clean' _site/index.html
+          grep -q 'avatar-guney.webp?v=20261121-clean' _site/tr/index.html
+          grep -q 'avatar-guney.webp?v=20261121-clean' _site/visual-stories/index.html
+          grep -q 'avatar-guney.webp?v=20261121-clean' _site/tr/visual-stories/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
