@@ -118,23 +118,27 @@ def shop_main(tr):
   </section>
 </div>'''
 
-def inject_nav(doc, tr):
-    label = "Alışveriş" if tr else "Shop"
+def inject_nav(doc, tr, rel):
+    label = "Kitaplar" if tr else "Books"
+    shop_label = "Alışveriş" if tr else "Shop"
+    root_prefix = "../" * (len(rel.parts) - 1)
+    shop_href = root_prefix + ("tr/shop/" if tr else "shop/")
     def update(nav):
         section = nav.group(0)
-        if re.search(r'>' + label + r'</a>', section):
+        if re.search(r'>' + shop_label + r'</a>', section):
             return section
-        matches = list(re.finditer(r'<a href="([^"]*books/)"[^>]*>[^<]+</a>', section))
-        if len(matches) != 1:
-            raise SystemExit(f"Cannot find exactly one Books link in navigation ({label})")
-        m = matches[0]
-        shop_href = m.group(1)[:-len("books/")] + "shop/"
-        section = section[:m.end()] + f'<a href="{shop_href}">{label}</a>' + section[m.end():]
-        return section
+        m = re.search(r'<a href="[^"]+"[^>]*>' + re.escape(label) + r'</a>', section)
+        if not m:
+            raise SystemExit(f"Cannot find Book link in navigation: {rel}")
+        shop = f'<a href="{shop_href}">{shop_label}</a>'
+        return section[:m.end()] + shop + section[m.end():]
     doc, a = re.subn(r'<nav class="main-nav"[^>]*>.*?</nav>', update, doc, count=1, flags=re.S)
     doc, b = re.subn(r'<nav aria-label="(?:Footer navigation|Alt menü)">.*?</nav>', update, doc, count=1, flags=re.S)
     if a != 1 or b != 1:
-        raise SystemExit("Navigation injection mismatch")
+        raise SystemExit(f"Navigation injection mismatch: {rel}")
+    if rel in (Path("shop/index.html"), Path("tr/shop/index.html")):
+        doc = doc.replace(f'<a href="{shop_href}">{shop_label}</a>',
+                          f'<a href="{shop_href}" aria-current="page">{shop_label}</a>', 1)
     return doc
 
 def add_css_link(doc, href):
@@ -198,10 +202,7 @@ for file in sorted(root.rglob("index.html")):
                      'app-symbol gentian','app-symbol rotam','href="shop/"'):
             if must not in page:
                 raise SystemExit(f"Missing homepage element {must}: {rel}")
-    page = inject_nav(page, tr)
-    if rel.parts[-2] == 'shop':
-        shop_label = "Alışveriş" if tr else "Shop"
-        page = page.replace(f">{shop_label}</a>", f' aria-current="page">{shop_label}</a>', 1) if False else page
+    page = inject_nav(page, tr, rel)
     file.write_text(page, encoding="utf-8")
 
 # Semantic, link and archive-safety checks.
