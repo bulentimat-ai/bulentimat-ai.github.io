@@ -14,6 +14,8 @@ for name in ('swiss-alpine-cover.webp', 'gentian-cover.webp'):
     shutil.copyfile(source, assets / name)
 css = '''.app-list-card .app-list-poster{height:auto;aspect-ratio:2.27/1;background:#102c49}
 .app-list-card .app-list-poster img{width:100%;height:100%;display:block;object-fit:contain;object-position:center}
+#apps .shop-product .shop-app-cover-frame{width:100%;aspect-ratio:2.18/1;background:#10283e;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#apps .shop-product .shop-app-cover-frame img{display:block;width:100%;height:100%;max-width:100%;object-fit:contain;object-position:center;box-shadow:none;border-radius:0}
 .store-grid.kindle-only{grid-template-columns:minmax(0,720px);max-width:720px}
 .store-card.kindle-card{padding:clamp(24px,4vw,36px)}
 .store-card .amazon-brand{display:block;width:min(220px,100%);height:76px;margin:0 0 10px}
@@ -59,6 +61,32 @@ for path in ('index.html','tr/index.html','shop/index.html','tr/shop/index.html'
     swiss,gentian=relpaths(page)
     html=html.replace(old_swiss,swiss).replace(old_gentian,gentian)
     if 'swiss-alpine-routes/index.html' in path:html=with_css(html,page)
+    page.write_text(html,encoding='utf-8')
+
+# The Apps page already uses the owner's original cover artwork. Apply those
+# exact same local image files to both Shop cards without re-rendering or cropping.
+for path in ('shop/index.html', 'tr/shop/index.html'):
+    page=root/path
+    html=page.read_text(encoding='utf-8')
+    swiss,gentian=relpaths(page)
+    before,tag,rest=html.partition('<section class="shop-section" id="apps">')
+    if not tag:raise RuntimeError(f'Missing Shop Apps section: {page}')
+    apps,close,after=rest.partition('</section>')
+    if not close:raise RuntimeError(f'Malformed Shop Apps section: {page}')
+    image_files=[(gentian,'Gentian original promotional cover with two iPhone screenshots'),
+                 (swiss,'Swiss Alpine Routes original promotional cover with two iPhone screenshots')]
+    it=iter(image_files)
+    def use_original(m):
+        src,alt=next(it)
+        return m.group(1)+f'<div class="shop-app-cover-frame"><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></div>'
+    apps,n=re.subn(r'(<article class="shop-product(?: sar-shop)?">)\s*<img\b[^>]*>',use_original,apps)
+    if n!=2:raise RuntimeError(f'Expected both app cards; found {n}: {page}')
+    html=before+tag+apps+close+after
+    html=with_css(html,page)
+    if 'gentian-banner.webp' in apps:raise RuntimeError('Outdated Gentian banner remained')
+    for src in (swiss,gentian):
+        if apps.count(src)!=1 or not (page.parent/src).is_file():
+            raise RuntimeError(f'Shop artwork not found or repeated: {src}')
     page.write_text(html,encoding='utf-8')
 
 for path in ('books/index.html','books/awooo-chronicles/index.html','books/awooo-the-tale-of-a-husky/index.html','tr/books/index.html','tr/books/awooo-chronicles/index.html','tr/books/awooo-the-tale-of-a-husky/index.html'):
