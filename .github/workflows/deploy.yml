@@ -10,6 +10,7 @@ on:
       - 'scripts/patch_portfolio_shop.py'
       - 'scripts/patch_swiss_alpine.py'
       - 'scripts/patch_product_repair.py'
+      - 'scripts/patch_showcase_cards.py'
       - 'assets/css/portfolio-v2.css'
       - 'assets/images/avatar-guney-clean.webp.b64'
   workflow_dispatch:
@@ -71,6 +72,15 @@ jobs:
           test -s _site/assets/images/gentian-cover.webp
           test -s _site/assets/images/swiss-alpine-cover.webp
           ! grep -R -q 'Apple Books' _site/books _site/tr/books
+
+      - name: Align app cards with approved logo-first design
+        run: |
+          python3 scripts/patch_showcase_cards.py _site
+          test -s _site/assets/css/showcase-cards.css
+          grep -q 'class="showcase-heading"' _site/shop/index.html
+          grep -q 'class="showcase-heading"' _site/tr/shop/index.html
+          grep -q 'class="showcase-heading"' _site/apps/index.html
+          grep -q 'class="showcase-heading"' _site/tr/apps/index.html
 
       - name: Replace Güney portrait with clean original
         run: |
