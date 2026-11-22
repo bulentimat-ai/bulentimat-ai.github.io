@@ -9,6 +9,7 @@ on:
       - 'scripts/patch_contact.py'
       - 'scripts/patch_portfolio_shop.py'
       - 'scripts/patch_swiss_alpine.py'
+      - 'scripts/patch_product_repair.py'
       - 'assets/css/portfolio-v2.css'
       - 'assets/images/avatar-guney-clean.webp.b64'
   workflow_dispatch:
@@ -63,6 +64,13 @@ jobs:
 
       - name: Rebrand Swiss Alpine Routes across bilingual portfolio
         run: python3 scripts/patch_swiss_alpine.py _site
+
+      - name: Repair app covers and Kindle-only book sections
+        run: |
+          python3 scripts/patch_product_repair.py _site
+          test -s _site/assets/images/gentian-cover.webp
+          test -s _site/assets/images/swiss-alpine-cover.webp
+          ! grep -R -q 'Apple Books' _site/books _site/tr/books
 
       - name: Replace Güney portrait with clean original
         run: |
