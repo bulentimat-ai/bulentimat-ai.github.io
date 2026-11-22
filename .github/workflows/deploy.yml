@@ -8,6 +8,7 @@ on:
       - '.github/workflows/deploy.yml'
       - 'scripts/patch_contact.py'
       - 'scripts/patch_portfolio_shop.py'
+      - 'scripts/patch_swiss_alpine.py'
       - 'assets/css/portfolio-v2.css'
       - 'assets/images/avatar-guney-clean.webp.b64'
   workflow_dispatch:
@@ -59,6 +60,9 @@ jobs:
           grep -q 'portfolio-shop-grid' _site/tr/index.html
           grep -q 'app-symbol gentian' _site/index.html
           grep -q 'app-symbol rotam' _site/tr/index.html
+
+      - name: Rebrand Swiss Alpine Routes across bilingual portfolio
+        run: python3 scripts/patch_swiss_alpine.py _site
 
       - name: Replace Güney portrait with clean original
         run: |
