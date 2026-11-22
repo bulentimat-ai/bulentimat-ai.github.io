@@ -115,13 +115,15 @@ for lang in ("en","tr"):
     for card,kind in zip(cards,("gentian","swiss")):
         key="gentian-cover.webp" if kind=="gentian" else "swiss-alpine-cover.webp"
         anchor=re.search(r'<a class="app-list-poster"[^>]*>.*?</a>',card,flags=re.S)
-        details=re.search(r'<div class="app-list-body">.*?</div>',card,flags=re.S)
+        details=re.search(r'<div class="app-list-body">.*</div>(?=</article>$)',card,flags=re.S)
         if not anchor or key not in anchor.group() or not details:
             raise RuntimeError(f"Cannot parse original {kind} listing: {page}")
         preserved=details.group()
         # Title has moved to the branded header; only one app name remains visible.
         preserved,n=re.subn(r'<h2>.*?</h2>','',preserved,count=1)
         if n!=1:raise RuntimeError(f"Missing prior card heading: {page}")
+        if 'class="button button-primary"' not in preserved:
+            raise RuntimeError(f"App detail navigation button lost: {page}")
         preserved=preserved.replace(
           'offline navigation and mountain safety','mountain safety').replace(
           'çevrimdışı GPS ve dağ güvenliği','dağ güvenliği')
