@@ -101,9 +101,10 @@ for tr in (False, True):
         raise RuntimeError(f"Expected one Husky profile in {filename}")
     html = html.replace(dog_old, dog_new, 1)
     html = html.replace("</head>", css + "\n</head>", 1)
+    profile_markup = html.split('<div class="story-profiles">', 1)[1].split('</div></div>', 1)[0]
     for handle in ("bulentimat", "bulentcreates", "guneythehusky"):
-        if html.count('href="https://www.instagram.com/' + handle + '/"') != 1:
-            raise RuntimeError(f"Wrong homepage handle count: {handle} in {filename}")
+        if profile_markup.count('href="https://www.instagram.com/' + handle + '/"') != 1:
+            raise RuntimeError(f"Wrong profile-card handle count: {handle} in {filename}")
     filename.write_text(html, encoding="utf-8")
     print(f"Validated EN/TR homepage Instagram trio: {filename}")
 
