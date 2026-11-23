@@ -31,6 +31,7 @@ css = """
 /* Published AWOOO Kindle marketplaces; compatible with existing light/dark theme. */
 .store-grid.kindle-only:has(.amazon-marketplaces){display:block;max-width:900px}
 .amazon-marketplaces{max-width:900px;width:100%;box-sizing:border-box}
+#amazon-stores{scroll-margin-top:110px}
 .amazon-marketplaces h3{margin:0 0 10px;font-size:clamp(20px,2.3vw,27px)}
 .amazon-marketplaces .market-intro{margin:0 0 22px;color:var(--muted);line-height:1.6}
 .amazon-market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
@@ -86,7 +87,7 @@ def marketplace_widget(tr):
     note=("Satın alma seçenekleri Amazon hesabınızın ülkesine ve mağazadaki satış durumuna göre değişebilir."
           if tr else "Purchase availability depends on your Amazon account country and each marketplace.")
     return (
-        '<div class="store-grid kindle-only">'
+        '<div class="store-grid kindle-only" id="amazon-stores">'
         '<div class="store-card kindle-card amazon-marketplaces">'
         '<h3>Amazon Kindle</h3><p class="market-intro">'+intro+'</p>'
         '<div class="amazon-market-grid">'+''.join(cards)+'</div>'
@@ -130,16 +131,19 @@ for prefix,tr in (("",False),("tr/",True)):
     books,close,rest=after.partition("</section>")
     if not close:
         raise RuntimeError(f"Unterminated Books section: {page}")
-    def relabel(slug,label):
+    def relabel(slug, label, buy=False):
         global books
-        pattern=(r'(<a class="button button-primary" href="../books/'+
-                 re.escape(slug)+r'/">).*?(</a>)')
-        books,n=re.subn(pattern,lambda m:m.group(1)+label+m.group(2),
-                        books,count=1,flags=re.S)
+        pattern=(r'<a class="button button-primary" href="../books/'+
+                 re.escape(slug)+r'/">.*?</a>')
+        url="../books/"+slug+"/"+("#amazon-stores" if buy else "")
+        replacement='<a class="button button-primary" href="'+url+'">'+label+'</a>'
+        books,n=re.subn(pattern,lambda _:replacement,books,count=1,flags=re.S)
         if n!=1:
             raise RuntimeError(f"Book CTA not found for {slug}: {page}")
-    relabel("awooo-chronicles", "Kitabı İncele ↗" if tr else "View Book ↗")
-    relabel("awooo-the-tale-of-a-husky", "İncele ve Satın Al ↗" if tr else "View &amp; Buy ↗")
+    # A pending title must not present a functioning Buy option.
+    relabel("awooo-chronicles", "Kitap Ayrıntıları ↗" if tr else "Details ↗")
+    # Main green button jumps directly to all 13 Amazon links.
+    relabel("awooo-the-tale-of-a-husky", "Satın Al ↗" if tr else "Buy ↗", buy=True)
     books=books.replace(
         "Open each book to read details and its permitted sample preview.",
         "Explore the books and choose an Amazon marketplace for published titles."
@@ -157,8 +161,8 @@ for prefix,tr in (("",False),("tr/",True)):
     )
     if n!=1: raise RuntimeError(f"Old Books note not found: {page}")
     doc=first+sep+books+close+rest
-    if "preview ↗" in books.lower() or "coming soon" in books.lower():
+    if "#amazon-stores" not in books or "preview ↗" in books.lower() or "coming soon" in books.lower():
         raise RuntimeError(f"Shop Books still has obsolete preview/soon text: {page}")
     page.write_text(doc,encoding="utf-8")
 
-print("PASS: 13 Kindle destinations on bilingual AWOOO detail pages; Shop has View & Buy for published title and View Book for pending title.")
+print("PASS: 13 Kindle destinations with #amazon-stores anchor; Shop Buy links to marketplaces; pending title uses Details.")
