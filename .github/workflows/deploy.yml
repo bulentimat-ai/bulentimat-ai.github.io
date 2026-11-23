@@ -14,6 +14,9 @@ on:
       - 'scripts/patch_kindle_links.py'
       - 'assets/css/portfolio-v2.css'
       - 'assets/images/avatar-guney-clean.webp.b64'
+      - 'scripts/patch_social_accounts.py'
+      - 'assets/images/avatar-personal-2026.webp.b64'
+      - 'assets/images/avatar-creator-2026.webp.b64'
   workflow_dispatch:
 
 permissions:
@@ -47,19 +50,6 @@ jobs:
           test -s _site/assets/previews/awooo-the-tale-of-a-husky-preview.pdf
           echo "Files ready for publishing:"
           find _site -type f | wc -l
-
-      - name: Inspect current home social markup
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          for filename in ('_site/index.html', '_site/tr/index.html'):
-              html = Path(filename).read_text(encoding='utf-8')
-              for handle in ('bulentimat', 'guneythehusky'):
-                  pos = html.find('instagram.com/' + handle)
-                  print('MARKUP', filename, handle, 'FOUND', pos)
-                  if pos >= 0:
-                      print(repr(html[max(0, pos-550):pos+800]))
-          PY
 
       - name: Insert bilingual email contacts
         run: python3 scripts/patch_contact.py _site
@@ -126,6 +116,18 @@ jobs:
           grep -q 'avatar-guney.webp?v=20261121-clean' _site/tr/index.html
           grep -q 'avatar-guney.webp?v=20261121-clean' _site/visual-stories/index.html
           grep -q 'avatar-guney.webp?v=20261121-clean' _site/tr/visual-stories/index.html
+
+      - name: Publish updated personal and creator Instagram profiles
+        run: |
+          python3 scripts/patch_social_accounts.py _site
+          test -s _site/assets/images/avatar-personal-2026.webp
+          test -s _site/assets/images/avatar-creator-2026.webp
+          grep -q 'instagram.com/bulentcreates/' _site/index.html
+          grep -q 'instagram.com/bulentcreates/' _site/tr/index.html
+          grep -q 'instagram.com/bulentcreates/' _site/contact/index.html
+          grep -q 'instagram.com/bulentcreates/' _site/tr/contact/index.html
+          grep -q 'instagram-2026-layout' _site/index.html
+          grep -q 'instagram-2026-layout' _site/tr/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
