@@ -11,6 +11,7 @@ on:
       - 'scripts/patch_swiss_alpine.py'
       - 'scripts/patch_product_repair.py'
       - 'scripts/patch_showcase_cards.py'
+      - 'scripts/patch_kindle_links.py'
       - 'assets/css/portfolio-v2.css'
       - 'assets/images/avatar-guney-clean.webp.b64'
   workflow_dispatch:
@@ -81,6 +82,15 @@ jobs:
           grep -q 'class="showcase-heading"' _site/tr/shop/index.html
           grep -q 'class="showcase-heading"' _site/apps/index.html
           grep -q 'class="showcase-heading"' _site/tr/apps/index.html
+
+      - name: Add published Kindle marketplaces and book CTAs
+        run: |
+          python3 scripts/patch_kindle_links.py _site
+          test -s _site/assets/css/kindle-stores.css
+          grep -q 'View &amp; Buy' _site/shop/index.html
+          grep -q 'İncele ve Satın Al' _site/tr/shop/index.html
+          grep -q 'https://www.amazon.com/dp/B0HSMDXKWG' _site/books/awooo-the-tale-of-a-husky/index.html
+          grep -q 'https://www.amazon.de/dp/B0HSMDXKWG' _site/tr/books/awooo-the-tale-of-a-husky/index.html
 
       - name: Replace Güney portrait with clean original
         run: |
