@@ -95,7 +95,7 @@ jobs:
           grep -q 'class="shop-book-actions"' _site/shop/index.html
           grep -q 'class="shop-book-actions"' _site/tr/shop/index.html
           grep -q 'href="../assets/previews/awooo-the-tale-of-a-husky-preview.pdf"' _site/shop/index.html
-          grep -q 'href="../assets/previews/awooo-the-tale-of-a-husky-preview.pdf"' _site/tr/shop/index.html
+          grep -q 'href="../../assets/previews/awooo-the-tale-of-a-husky-preview.pdf"' _site/tr/shop/index.html
           grep -q 'book-actions.css?v=20261123c' _site/shop/index.html
           grep -q 'book-actions.css?v=20261123c' _site/tr/shop/index.html
           grep -q 'id="amazon-stores"' _site/books/awooo-the-tale-of-a-husky/index.html
