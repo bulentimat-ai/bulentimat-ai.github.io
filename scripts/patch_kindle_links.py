@@ -120,7 +120,7 @@ for prefix,tr in (("",False),("tr/",True)):
         raise RuntimeError(f"Obsolete coming-soon text: {page}")
     page.write_text(doc,encoding="utf-8")
 
-# Shop's already-generated two cards: remove "preview" from CTAs.
+# Shop's already-generated two cards: provide Buy + Preview for the live book.
 # AWOOO CHRONICLES remains under review, so do not claim it is on sale.
 for prefix,tr in (("",False),("tr/",True)):
     page=root/(prefix+"shop/index.html")
@@ -144,6 +144,30 @@ for prefix,tr in (("",False),("tr/",True)):
     relabel("awooo-chronicles", "Kitap Ayrıntıları ↗" if tr else "Details ↗")
     # Main green button jumps directly to all 13 Amazon links.
     relabel("awooo-the-tale-of-a-husky", "Satın Al ↗" if tr else "Buy ↗", buy=True)
+
+    # Keep the Buy CTA, and place a separate sample PDF Preview beside it.
+    # The exact publicly released, limited preview already exists in site.zip.
+    buy_label = "Satın Al ↗" if tr else "Buy ↗"
+    preview_label = "Ön İzleme ↗" if tr else "Preview ↗"
+    pdf_href = "../assets/previews/awooo-the-tale-of-a-husky-preview.pdf"
+    buy_anchor = (
+        '<a class="button button-primary" '
+        'href="../books/awooo-the-tale-of-a-husky/#amazon-stores">'
+        + buy_label + '</a>'
+    )
+    preview_anchor = (
+        '<a class="button button-outline" href="' + pdf_href +
+        '" target="_blank" rel="noopener noreferrer"'
+        ' aria-label="' + ("Kitabın ücretsiz örneğini aç" if tr else "Open free book sample") + '">'
+        + preview_label + '</a>'
+    )
+    if books.count(buy_anchor) != 1:
+        raise RuntimeError(f"Missing expected Buy action: {page}")
+    books = books.replace(
+        buy_anchor,
+        '<div class="shop-book-actions">' + buy_anchor + preview_anchor + '</div>',
+        1
+    )
     books=books.replace(
         "Open each book to read details and its permitted sample preview.",
         "Explore the books and choose an Amazon marketplace for published titles."
@@ -161,8 +185,44 @@ for prefix,tr in (("",False),("tr/",True)):
     )
     if n!=1: raise RuntimeError(f"Old Books note not found: {page}")
     doc=first+sep+books+close+rest
-    if "#amazon-stores" not in books or "preview ↗" in books.lower() or "coming soon" in books.lower():
-        raise RuntimeError(f"Shop Books still has obsolete preview/soon text: {page}")
+    if ("#amazon-stores" not in books or
+        books.count('class="shop-book-actions"') != 1 or
+        books.count('awooo-the-tale-of-a-husky-preview.pdf') != 1 or
+        "coming soon" in books.lower()):
+        raise RuntimeError(f"Shop Buy/Preview controls missing: {page}")
+    # Use a small separately versioned stylesheet to avoid stale iOS caching.
+    css_href = ("../../" if tr else "../") + "assets/css/book-actions.css?v=20261123c"
+    doc=doc.replace("</head>", '<link rel="stylesheet" href="' + css_href + '">\n</head>', 1)
     page.write_text(doc,encoding="utf-8")
 
-print("PASS: 13 Kindle destinations with #amazon-stores anchor; Shop Buy links to marketplaces; pending title uses Details.")
+book_actions_css = """
+/* Shop: the published Kindle book has adjacent Buy and Preview buttons. */
+#books .shop-book-actions{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:auto;
+    max-width:100%;
+}
+#books .shop-book-actions .button{
+    margin:0;align-self:auto;display:inline-flex;align-items:center;
+    justify-content:center;box-sizing:border-box;min-height:44px;
+    font-size:clamp(11px,2.8vw,14px);line-height:1.2;
+    padding:10px 12px;white-space:nowrap;text-align:center;
+}
+#books .shop-book-actions .button-outline{
+    border:1px solid var(--line,#62717b);background:transparent;color:var(--ink);
+}
+#books .shop-book-actions .button-outline:hover,
+#books .shop-book-actions .button-outline:focus-visible{
+    border-color:var(--green);color:var(--green);
+}
+@media(max-width:760px){
+    #books .shop-book-actions{gap:6px}
+    #books .shop-book-actions .button{padding:10px 9px}
+}
+@media(max-width:410px) and (min-width:381px){
+    #books .shop-book-actions .button{padding:10px 7px;font-size:11px}
+}
+"""
+css_path = root / "assets/css/book-actions.css"
+css_path.write_text(book_actions_css, encoding="utf-8")
+
+print("PASS: 13 Kindle destinations and bilingual Shop Buy + adjacent Preview PDF; pending title retains Details.")
