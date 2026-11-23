@@ -48,6 +48,19 @@ jobs:
           echo "Files ready for publishing:"
           find _site -type f | wc -l
 
+      - name: Inspect current home social markup
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for filename in ('_site/index.html', '_site/tr/index.html'):
+              html = Path(filename).read_text(encoding='utf-8')
+              for handle in ('bulentimat', 'guneythehusky'):
+                  pos = html.find('instagram.com/' + handle)
+                  print('MARKUP', filename, handle, 'FOUND', pos)
+                  if pos >= 0:
+                      print(repr(html[max(0, pos-550):pos+800]))
+          PY
+
       - name: Insert bilingual email contacts
         run: python3 scripts/patch_contact.py _site
 
