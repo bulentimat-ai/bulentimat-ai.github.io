@@ -82,13 +82,17 @@ jobs:
           grep -q 'class="showcase-heading"' _site/tr/shop/index.html
           grep -q 'class="showcase-heading"' _site/apps/index.html
           grep -q 'class="showcase-heading"' _site/tr/apps/index.html
+          grep -q '.shop-section#apps .shop-product-grid{grid-template-columns:minmax(0,1fr)}' _site/assets/css/showcase-cards.css
+          grep -q '.showcase-heading img.showcase-logo' _site/assets/css/showcase-cards.css
 
       - name: Add published Kindle marketplaces and book CTAs
         run: |
           python3 scripts/patch_kindle_links.py _site
           test -s _site/assets/css/kindle-stores.css
-          grep -q 'View &amp; Buy' _site/shop/index.html
-          grep -q 'İncele ve Satın Al' _site/tr/shop/index.html
+          grep -q 'href="../books/awooo-the-tale-of-a-husky/#amazon-stores">Buy ↗' _site/shop/index.html
+          grep -q 'href="../books/awooo-the-tale-of-a-husky/#amazon-stores">Satın Al ↗' _site/tr/shop/index.html
+          grep -q 'id="amazon-stores"' _site/books/awooo-the-tale-of-a-husky/index.html
+          grep -q 'id="amazon-stores"' _site/tr/books/awooo-the-tale-of-a-husky/index.html
           grep -q 'https://www.amazon.com/dp/B0HSMDXKWG' _site/books/awooo-the-tale-of-a-husky/index.html
           grep -q 'https://www.amazon.de/dp/B0HSMDXKWG' _site/tr/books/awooo-the-tale-of-a-husky/index.html
 
