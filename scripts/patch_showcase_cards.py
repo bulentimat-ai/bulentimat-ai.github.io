@@ -20,6 +20,16 @@ style=r"""
 .showcase-heading{display:flex;align-items:center;gap:13px;min-width:0}
 .shop-product.showcase-product>.showcase-heading{min-height:82px;margin:0 0 17px}
 .showcase-logo{display:block;flex:0 0 54px;width:54px;height:54px;border-radius:14px;object-fit:cover;box-shadow:0 5px 14px rgba(10,33,48,.16);background-color:#123047}
+/* The generic .shop-product img width:100% rule must never stretch the header app icon. */
+.shop-product.showcase-product .showcase-heading img.showcase-logo{
+ width:54px;height:54px;min-width:54px;max-width:54px;flex:0 0 54px;object-fit:cover
+}
+.shop-product.showcase-product .showcase-heading .showcase-title{
+ flex:1 1 auto;min-width:0
+}
+.shop-product.showcase-product .showcase-heading .showcase-title h3{
+ overflow-wrap:normal;word-break:normal;hyphens:none
+}
 .showcase-logo-gentian{background-image:url('../images/gentian-banner.webp');background-repeat:no-repeat;background-size:1275% auto;background-position:36.9% 35.3%}
 .showcase-title{min-width:0}
 .shop-product.showcase-product .showcase-title h3,
@@ -39,6 +49,9 @@ style=r"""
  .shop-product.showcase-product{padding:13px 11px 17px;border-radius:16px}
  .shop-product.showcase-product>.showcase-heading{gap:8px;min-height:69px;margin-bottom:11px;align-items:center}
  .showcase-logo{width:39px;height:39px;flex-basis:39px;border-radius:11px}
+ .shop-product.showcase-product .showcase-heading img.showcase-logo{
+  width:39px;height:39px;min-width:39px;max-width:39px;flex-basis:39px
+ }
  .shop-product.showcase-product .showcase-title h3,
  .app-list-card.showcase-app-list-card .showcase-title h2{font-size:clamp(12px,3.5vw,18px);line-height:1.2;letter-spacing:-.015em}
  .shop-product.showcase-product .showcase-title p,
@@ -50,6 +63,16 @@ style=r"""
  .app-list-card.showcase-app-list-card .showcase-heading{padding:16px 15px 12px;gap:9px;min-height:76px}
  .app-list-card.showcase-app-list-card .showcase-cover{width:calc(100% - 30px);margin:0 15px;border-radius:10px}
  .app-list-card.showcase-app-list-card .app-list-body{padding-top:16px}
+}
+/* On narrow phones, app listings need full-width cards for readable titles
+   and product imagery. The two-column Books cards stay unchanged. */
+@media(max-width:650px){
+ .shop-section#apps .shop-product-grid{grid-template-columns:minmax(0,1fr)}
+ .shop-section#apps .shop-product.showcase-product{min-width:0;max-width:100%}
+ .shop-section#apps .shop-product.showcase-product>.showcase-heading{width:100%;min-width:0}
+ .shop-section#apps .shop-product.showcase-product .showcase-title h3{font-size:18px}
+ .shop-section#apps .shop-product.showcase-product .showcase-title p{font-size:12px}
+ .shop-section#apps .shop-product.showcase-product .showcase-cover{width:100%;max-width:100%}
 }
 """
 css=root/"assets/css/showcase-cards.css"
@@ -70,7 +93,7 @@ def head(page,tr,kind):
 
 def css_link(html,page):
     relative="../"*(len(page.relative_to(root).parts)-1)
-    href=f'{relative}assets/css/showcase-cards.css?v=20261123a'
+    href=f'{relative}assets/css/showcase-cards.css?v=20261123b'
     return html.replace('</head>',f'<link rel="stylesheet" href="{href}">\n</head>',1)
 
 for lang in ("en","tr"):
