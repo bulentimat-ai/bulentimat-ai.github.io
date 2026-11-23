@@ -12,6 +12,7 @@ on:
       - 'scripts/patch_product_repair.py'
       - 'scripts/patch_showcase_cards.py'
       - 'scripts/patch_kindle_links.py'
+      - 'scripts/patch_published_books.py'
       - 'assets/css/portfolio-v2.css'
       - 'assets/images/avatar-guney-clean.webp.b64'
       - 'scripts/patch_social_accounts.py'
@@ -105,6 +106,22 @@ jobs:
           grep -q 'id="amazon-stores"' _site/tr/books/awooo-the-tale-of-a-husky/index.html
           grep -q 'https://www.amazon.com/dp/B0HSMDXKWG' _site/books/awooo-the-tale-of-a-husky/index.html
           grep -q 'https://www.amazon.de/dp/B0HSMDXKWG' _site/tr/books/awooo-the-tale-of-a-husky/index.html
+
+      - name: Publish both AWOOO books with Preview landing pages
+        run: |
+          python3 scripts/patch_published_books.py _site
+          grep -q 'id="amazon-stores"' _site/books/awooo-chronicles/index.html
+          grep -q 'id="amazon-stores"' _site/tr/books/awooo-chronicles/index.html
+          grep -q 'https://www.amazon.com/s?k=' _site/books/awooo-chronicles/index.html
+          grep -q 'class="shop-book-actions"' _site/shop/index.html
+          grep -q 'class="shop-book-actions"' _site/tr/shop/index.html
+          grep -q 'href="../books/awooo-chronicles/#amazon-stores"' _site/shop/index.html
+          grep -q 'href="../books/awooo-chronicles/"' _site/shop/index.html
+          grep -q 'href="../books/awooo-the-tale-of-a-husky/"' _site/shop/index.html
+          grep -q 'href="../books/awooo-chronicles/#amazon-stores"' _site/tr/shop/index.html
+          grep -q 'href="../books/awooo-the-tale-of-a-husky/"' _site/tr/shop/index.html
+          ! grep -q 'awooo-the-tale-of-a-husky-preview.pdf' _site/shop/index.html
+          ! grep -q 'awooo-the-tale-of-a-husky-preview.pdf' _site/tr/shop/index.html
 
       - name: Replace Güney portrait with clean original
         run: |
