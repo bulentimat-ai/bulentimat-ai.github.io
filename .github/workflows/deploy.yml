@@ -112,7 +112,10 @@ jobs:
           python3 scripts/patch_published_books.py _site
           grep -q 'id="amazon-stores"' _site/books/awooo-chronicles/index.html
           grep -q 'id="amazon-stores"' _site/tr/books/awooo-chronicles/index.html
-          grep -q 'https://www.amazon.com/s?k=' _site/books/awooo-chronicles/index.html
+          grep -q 'https://www.amazon.com/dp/B0HSP3CDBF' _site/books/awooo-chronicles/index.html
+          grep -q 'https://www.amazon.de/dp/B0HSP3CDBF' _site/tr/books/awooo-chronicles/index.html
+          ! grep -q 'amazon.com/s?k=' _site/books/awooo-chronicles/index.html
+          ! grep -q 'amazon.com/s?k=' _site/tr/books/awooo-chronicles/index.html
           grep -q 'class="shop-book-actions"' _site/shop/index.html
           grep -q 'class="shop-book-actions"' _site/tr/shop/index.html
           grep -q 'href="../books/awooo-chronicles/#amazon-stores"' _site/shop/index.html
