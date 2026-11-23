@@ -149,7 +149,7 @@ for prefix,tr in (("",False),("tr/",True)):
     # The exact publicly released, limited preview already exists in site.zip.
     buy_label = "Satın Al ↗" if tr else "Buy ↗"
     preview_label = "Ön İzleme ↗" if tr else "Preview ↗"
-    pdf_href = "../assets/previews/awooo-the-tale-of-a-husky-preview.pdf"
+    pdf_href = ("../../" if tr else "../") + "assets/previews/awooo-the-tale-of-a-husky-preview.pdf"
     buy_anchor = (
         '<a class="button button-primary" '
         'href="../books/awooo-the-tale-of-a-husky/#amazon-stores">'
