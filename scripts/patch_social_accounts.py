@@ -7,8 +7,8 @@ import sys
 
 root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("_site")
 photos = {
-    "personal": "22b0c91acccbf16c3dd1c4ff3fd5e0b353b2dae0cac0d4f15ef576cfd53cc636",
-    "creator": "4a689bcac04abe8f609ce242404b282675e8b461b7f6ccfdecb6d693d251f411",
+    "personal": "ab4faf00890060b31b73a97d8802d5bf3ec87e42caa7d0f51030e286e515338b",
+    "creator": "fd721a9a6961947ecda34b8d4e8f78679a1c09692554eaff1cba6a5a0cdab067",
 }
 for kind, expected_sha in photos.items():
     source = Path(f"assets/images/avatar-{kind}-2026.webp.b64")
