@@ -276,3 +276,43 @@ for prefix, tr in (("", False), ("tr/", True)):
     page.write_text(doc, encoding="utf-8")
 
 print("PASS: 13 direct Amazon marketplace links for AWOOO Husky, bilingual format labels, Chronicles unchanged.")
+
+
+# Book detail hero: add a local Buy CTA next to the existing sample and cover links.
+for prefix, tr in (("", False), ("tr/", True)):
+    for slug in ("awooo-the-tale-of-a-husky", "awooo-chronicles"):
+        page = root / (prefix + "books/" + slug + "/index.html")
+        doc = page.read_text(encoding="utf-8")
+        assert doc.count('id="amazon-stores"') == 1, page
+        opening = '<div class="detail-actions">'
+        assert doc.count(opening) == 1, page
+        begin = doc.index(opening)
+        end = whole_div_end(doc, begin)
+        actions = doc[begin:end]
+        assert actions.count('href="#read-preview"') == 1, page
+        assert actions.count('href="#book-covers"') == 1, page
+        assert 'href="#amazon-stores"' not in actions, page
+        label = "Satın al" if tr else "Buy"
+        buy = ('<a class="button button-primary book-buy-cta" href="#amazon-stores">' +
+               label + ' <span aria-hidden="true">↓</span></a>')
+        actions = actions[:-len("</div>")] + buy + "</div>"
+        doc = doc[:begin] + actions + doc[end:]
+        doc, count = re.subn(r'kindle-stores\.css\?v=[^"]+', 'kindle-stores.css?v=20261124-book-buy', doc, count=1)
+        assert count == 1, page
+        assert actions.count('<a ') == 3, page
+        assert actions.count('href="#amazon-stores"') == 1, page
+        page.write_text(doc, encoding="utf-8")
+        print(f"PASS: local Buy CTA and existing sample/cover links: {page}")
+
+css_path = root / "assets/css/kindle-stores.css"
+css = css_path.read_text(encoding="utf-8")
+css += """
+/* Keep three book hero actions comfortably aligned on mobile; wrap when necessary. */
+.book-hero .detail-actions:has(.book-buy-cta){flex-wrap:wrap;gap:10px}
+.book-hero .detail-actions:has(.book-buy-cta) .button{white-space:nowrap}
+@media(max-width:760px){
+  .book-hero .detail-actions:has(.book-buy-cta){gap:8px}
+  .book-hero .detail-actions:has(.book-buy-cta) .button{min-height:44px;padding:10px 10px;gap:6px;font-size:12px;box-sizing:border-box}
+}
+"""
+css_path.write_text(css, encoding="utf-8")
