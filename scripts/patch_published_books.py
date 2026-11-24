@@ -178,10 +178,11 @@ css_path.write_text(css, encoding="utf-8")
 print("PASS: both Kindle books published, 13 Chronicles direct ASIN links, Shop Buy and landing-page Preview in EN/TR.")
 
 
-# AWOOO: The Tale of a Husky — Kindle + paperback (author-supplied US ASIN).
-# Keep existing Kindle marketplace links: print availability varies by country.
-paperback_url = "https://www.amazon.com/dp/B0HSSS6M5P"
-kindle_url = "https://www.amazon.com/dp/B0HSMDXKWG"
+# AWOOO: The Tale of a Husky — one direct Amazon listing per marketplace.
+# Both formats are linked by Amazon; the US paperback listing is author-supplied,
+# and the German Kindle listing was confirmed to expose both formats.
+husky_asin = "B0HSMDXKWG"
+husky_us_asin = "B0HSSS6M5P"
 
 for prefix, tr in (("", False), ("tr/", True)):
     format_label = "Kindle e-kitap · Basılı kitap (Paperback)" if tr else "Kindle eBook · Paperback"
@@ -189,30 +190,38 @@ for prefix, tr in (("", False), ("tr/", True)):
     doc = page.read_text(encoding="utf-8")
     start = doc.index('<div class="store-grid kindle-only" id="amazon-stores">')
     end = whole_div_end(doc, start)
-    panel = doc[start:end]
-    assert panel.count('class="amazon-market-link"') == len(stores)
-    intro = ("Amazon.com üzerinden Kindle e-kitap veya basılı kitap (paperback) seçeneğini görüntüleyin."
-             if tr else "View the Kindle eBook and paperback editions on Amazon.com.")
-    availability = ("Basılı kitabın stok ve teslimat durumu ülkeye ve teslimat adresine göre değişebilir."
-                    if tr else "Paperback availability and delivery may vary by country and shipping address.")
-    local = "Ülkenize göre Kindle mağazaları" if tr else "Kindle marketplaces by country"
-    print_label = "Paperback · Basılı kitap" if tr else "Paperback · Print edition"
-    choose_label = "Amazon'da görüntüle ↗" if tr else "View on Amazon ↗"
-    kindle_label = "Kindle · E-kitap" if tr else "Kindle · eBook"
-    formats = (
-        '<h3>' + ("Amazon kitap sürümleri" if tr else "Amazon book editions") + '</h3>'
-        '<p class="market-intro">' + intro + '</p>'
-        '<div class="book-edition-grid">'
-        '<a class="button button-primary" href="' + paperback_url + '" target="_blank" rel="noopener noreferrer">'
-        '<strong>' + print_label + '</strong><small>' + choose_label + '</small></a>'
-        '<a class="button button-outline" href="' + kindle_url + '" target="_blank" rel="noopener noreferrer">'
-        '<strong>' + kindle_label + '</strong><small>' + choose_label + '</small></a>'
-        '</div><p class="amazon-market-note edition-note">' + availability + '</p>'
-        '<h4 class="edition-market-heading">' + local + '</h4>'
+    cards = []
+    expected_urls = []
+    for flag, en, tn, domain in stores:
+        country = tn if tr else en
+        asin = husky_us_asin if domain == "amazon.com" else husky_asin
+        url = "https://www." + domain + "/dp/" + asin
+        expected_urls.append(url)
+        label = country + (" — Amazon kitap sürümleri" if tr else " — Amazon book editions")
+        cards.append(
+            '<a class="amazon-market-link" href="' + html.escape(url, quote=True) +
+            '" target="_blank" rel="noopener noreferrer" aria-label="' + html.escape(label, quote=True) + '">'
+            '<span class="amazon-market-flag" aria-hidden="true">' + flag + '</span>'
+            '<span class="amazon-market-copy"><strong>' + html.escape(country) +
+            '</strong><small>' + html.escape(domain) + '</small></span>'
+            '<span class="amazon-market-arrow" aria-hidden="true">↗</span></a>'
+        )
+    intro = ("Ülkenizdeki Amazon mağazasını seçin ve ürün sayfasında Kindle e-kitap veya basılı kitap (paperback) formatını görüntüleyin."
+             if tr else "Choose your Amazon marketplace and select Kindle eBook or paperback on the product page.")
+    note = ("Format seçenekleri, fiyatlar ve teslimat durumu Amazon mağazasına ve teslimat adresine göre değişebilir."
+            if tr else "Edition availability, prices and delivery options may vary by marketplace and shipping address.")
+    panel = (
+        '<div class="store-grid kindle-only" id="amazon-stores">'
+        '<div class="store-card kindle-card amazon-marketplaces">'
+        '<h3>Amazon — ' + format_label + '</h3><p class="market-intro">' + intro + '</p>'
+        '<div class="amazon-market-grid">' + ''.join(cards) + '</div>'
+        '<p class="amazon-market-note">' + note + '</p></div></div>'
     )
-    panel, n = re.subn(r'<h3>Amazon Kindle</h3><p class="market-intro">.*?</p>',
-                       lambda _: formats, panel, count=1, flags=re.S)
-    assert n == 1, page
+    assert len(expected_urls) == len(set(expected_urls)) == 13, page
+    for url in expected_urls:
+        assert panel.count('href="' + url + '"') == 1, (page, url)
+    assert panel.count('class="amazon-market-link"') == 13, page
+    assert '/s?k=' not in panel and 'book-edition-grid' not in panel, page
     doc = doc[:start] + panel + doc[end:]
     # Change the existing publication status and other title-specific Kindle-only text.
     if tr:
@@ -222,8 +231,8 @@ for prefix, tr in (("", False), ("tr/", True)):
         doc = doc.replace("Available on Amazon Kindle", "Kindle eBook &amp; Paperback")
         doc = doc.replace("Choose an Amazon marketplace to view the Kindle edition.",
                           "Choose Kindle eBook or paperback on Amazon.")
-    doc = doc.replace("kindle-stores.css?v=20261123", "kindle-stores.css?v=20261124-print")
-    assert doc.count('href="' + paperback_url + '"') == 1, page
+    doc = doc.replace("kindle-stores.css?v=20261123", "kindle-stores.css?v=20261124-editions")
+    assert doc.count('href="https://www.amazon.com/dp/' + husky_us_asin + '"') == 1, page
     assert doc.count('class="amazon-market-link"') == len(stores), page
     page.write_text(doc, encoding="utf-8")
 
@@ -250,6 +259,7 @@ for prefix, tr in (("", False), ("tr/", True)):
     old = '<strong>AWOOO: The Tale of a Husky</strong><small>The Tale of a Husky</small>'
     assert old in doc, page
     doc = doc.replace(old, '<strong>AWOOO: The Tale of a Husky</strong><small>' + format_label + '</small>', 1)
+    doc = doc.replace("Explore the books on Amazon Kindle", "Explore the books on Amazon").replace("Kitapları Amazon Kindle bölümünde görüntüle", "Kitapları Amazon bölümünde görüntüle").replace("Amazon Kindle'da keşfet", "Amazon'da keşfet").replace(">Amazon Kindle</", ">Amazon</")
     page.write_text(doc, encoding="utf-8")
 
     page = root / (prefix + "books/index.html")
@@ -265,17 +275,4 @@ for prefix, tr in (("", False), ("tr/", True)):
         doc = doc.replace(marker, '<p class="book-format-label">AWOOO: The Tale of a Husky — ' + format_label + '</p>' + marker, 1)
     page.write_text(doc, encoding="utf-8")
 
-css_path = root / "assets/css/kindle-stores.css"
-css = css_path.read_text(encoding="utf-8")
-css += """
-/* Two direct edition links; independent of the country-specific Kindle grid. */
-.book-edition-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.book-edition-grid .button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;min-height:70px;box-sizing:border-box;white-space:normal;text-align:left;padding:14px}
-.book-edition-grid .button strong{font-size:15px;line-height:1.3}
-.book-edition-grid .button small{font-size:12px;line-height:1.4}
-.edition-note{margin:12px 0 24px}
-.edition-market-heading{font-size:16px;margin:0 0 12px}
-@media(max-width:520px){.book-edition-grid{grid-template-columns:1fr}}
-"""
-css_path.write_text(css, encoding="utf-8")
-print("PASS: bilingual AWOOO Husky Kindle + paperback links, home, Books and Shop labels; Chronicles links unchanged.")
+print("PASS: 13 direct Amazon marketplace links for AWOOO Husky, bilingual format labels, Chronicles unchanged.")
