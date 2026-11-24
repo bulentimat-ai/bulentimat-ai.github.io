@@ -189,6 +189,36 @@ jobs:
           grep -q 'class="hero-image" src="assets/images/hero-abstract.webp"' _site/index.html
           grep -q 'class="hero-image" src="../assets/images/hero-abstract.webp"' _site/tr/index.html
 
+      - name: Refine theme toggle with monochrome outline sun
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("_site")
+          js = root / "assets/js/site.js"
+          code = js.read_text(encoding="utf-8")
+          old = "themeBtn.querySelector('.theme-symbol').textContent=root.dataset.theme==='dark'?'☀':'◐';"
+          sun = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false" style="display:block"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.28 5.28l1.42 1.42m10.6 10.6 1.42 1.42M5.28 18.72l1.42-1.42m10.6-10.6 1.42-1.42"/></svg>'
+          new = "themeBtn.querySelector('.theme-symbol').innerHTML=root.dataset.theme==='dark'?'" + sun + "':'◐';"
+          assert code.count(old) == 1, "Unexpected theme toggle source"
+          code = code.replace(old, new, 1)
+          assert '☀' not in code
+          js.write_text(code, encoding="utf-8")
+          updated = 0
+          for page in root.rglob("*.html"):
+              doc = page.read_text(encoding="utf-8")
+              if 'class="theme-symbol"' not in doc:
+                  continue
+              import re
+              doc, n = re.subn(r'(assets/js/site\.js)(?:\?[^"]*)?"', r'\1?v=20261124-outline-sun"', doc)
+              assert n == 1, page
+              page.write_text(doc, encoding="utf-8")
+              updated += 1
+          assert updated >= 2
+          print(f"PASS: monochrome sun on {updated} pages; light-mode symbol and theme behaviour preserved.")
+          PY
+          node --check _site/assets/js/site.js
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
