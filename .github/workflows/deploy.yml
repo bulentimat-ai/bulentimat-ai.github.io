@@ -14,6 +14,7 @@ on:
       - 'scripts/patch_kindle_links.py'
       - 'scripts/patch_published_books.py'
       - 'assets/css/portfolio-v2.css'
+      - 'assets/images/hero-abstract.webp'
       - 'assets/images/avatar-guney-clean.webp.b64'
       - 'scripts/patch_social_accounts.py'
       - 'assets/images/avatar-personal-2026.webp.b64'
@@ -148,6 +149,45 @@ jobs:
           grep -q 'instagram.com/bulentcreates/' _site/tr/contact/index.html
           grep -q 'instagram-2026-layout' _site/index.html
           grep -q 'instagram-2026-layout' _site/tr/index.html
+
+      - name: Apply optional abstract portfolio hero (preserve original)
+        run: |
+          set -euo pipefail
+          test -s _site/assets/images/hero-alps.webp
+          if [ ! -s assets/images/hero-abstract.webp ]; then
+            echo "Abstract hero not uploaded; retain original hero."
+            exit 0
+          fi
+          cp assets/images/hero-abstract.webp _site/assets/images/hero-abstract.webp
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path("_site")
+          css = root / "assets/css/site.css"
+          css.write_text(css.read_text(encoding="utf-8") + """
+          /* Abstract portfolio homepage hero, isolated from the original story image. */
+          .home-hero .hero-image{object-position:60% 50%}
+          .home-hero .hero-shade{background:linear-gradient(90deg,rgba(249,249,248,.92) 0%,rgba(249,249,248,.83) 32%,rgba(249,249,248,.33) 60%,rgba(249,249,248,.04) 100%)}
+          [data-theme=dark] .home-hero .hero-shade{background:linear-gradient(90deg,rgba(13,27,37,.98) 0%,rgba(13,27,37,.90) 36%,rgba(13,27,37,.47) 69%,rgba(13,27,37,.25) 100%)}
+          @media(max-width:760px){
+            .home-hero .hero-image{object-position:60% 50%}
+            .home-hero .hero-shade{background:linear-gradient(90deg,rgba(249,249,248,.94) 0%,rgba(249,249,248,.80) 65%,rgba(249,249,248,.42) 100%)}
+            [data-theme=dark] .home-hero .hero-shade{background:linear-gradient(90deg,rgba(13,27,37,.97),rgba(13,27,37,.85) 70%,rgba(13,27,37,.55))}
+          }
+          """, encoding="utf-8")
+          for page in (root / "index.html", root / "tr/index.html"):
+              doc = page.read_text(encoding="utf-8")
+              pattern = r'(<img class="hero-image" src="(?:\.\./)?assets/images/)hero-alps\.webp" alt="[^"]*"'
+              doc, count = re.subn(pattern, r'\g<1>hero-abstract.webp" alt=""', doc, count=1)
+              assert count == 1, page
+              doc = doc.replace('assets/css/site.css"', 'assets/css/site.css?v=20261124-abstract"', 1)
+              assert 'class="story-image"' in doc and 'hero-alps.webp' in doc, page
+              page.write_text(doc, encoding="utf-8")
+          PY
+          test -s _site/assets/images/hero-alps.webp
+          test -s _site/assets/images/hero-abstract.webp
+          grep -q 'class="hero-image" src="assets/images/hero-abstract.webp"' _site/index.html
+          grep -q 'class="hero-image" src="../assets/images/hero-abstract.webp"' _site/tr/index.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
