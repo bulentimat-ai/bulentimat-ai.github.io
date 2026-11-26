@@ -222,7 +222,7 @@ for rel in ("shop/index.html", "tr/shop/index.html"):
 print("Validated bilingual homepage, Shop pages, store destinations and authentic brand artwork.")
 
 
-# Homepage hero: three distinct routes, without a redundant projects CTA.
+# Homepage hero: two explore actions, with matching store actions below.
 for tr in (False, True):
     rel = "tr/index.html" if tr else "index.html"
     page = root / rel
@@ -230,7 +230,8 @@ for tr in (False, True):
     items = (
         ("apps/", "Uygulamaları keşfet" if tr else "Explore apps", "button-ghost", "↗"),
         ("books/", "Kitapları keşfet" if tr else "Explore books", "button-ghost", "↗"),
-        ("shop/", "Satın al" if tr else "Buy", "button-primary", "↗"),
+        ("shop/#apps", "App Store’dan indir" if tr else "Download on App Store", "button-primary", "↗"),
+        ("shop/#books", "Amazon’dan satın al" if tr else "Buy on Amazon", "button-primary", "↗"),
     )
     actions = '<div class="hero-cta home-hero-navigation">' + ''.join(
         f'<a class="button {style}" href="{href}">{label} <span aria-hidden="true">{arrow}</span></a>'
@@ -241,28 +242,30 @@ for tr in (False, True):
     marker = '<div class="feature-grid portfolio-shop-grid"'
     assert doc.count(marker) == 1, rel
     doc = doc.replace(marker, marker + ' id="featured-projects"', 1)
-    doc, n = re.subn(r'(assets/css/portfolio-v2\.css)(?:\?[^"]*)?"', r'\1?v=20261126-home-nav3"', doc, count=1)
+    doc, n = re.subn(r'(assets/css/portfolio-v2\.css)(?:\?[^"]*)?"', r'\1?v=20261126-home-nav4store"', doc, count=1)
     assert n == 1, rel
-    assert actions.count('<a ') == 3 and 'Explore projects' not in actions and 'Projeleri keşfet' not in actions and doc.count('id="featured-projects"') == 1, rel
+    assert actions.count('<a ') == 4 and 'Explore projects' not in actions and 'Projeleri keşfet' not in actions and doc.count('id="featured-projects"') == 1, rel
     for href, label, _, _ in items:
         assert f'href="{href}">{label} ' in actions, (rel, href)
-        if not href.startswith("#"):
-            assert (page.parent / href / "index.html").is_file(), (rel, href)
+        destination, _, fragment = href.partition("#")
+        target = page.parent / destination / "index.html"
+        assert target.is_file(), (rel, href)
+        if fragment:
+            assert f'id="{fragment}"' in target.read_text(encoding="utf-8"), (rel, href)
     page.write_text(doc, encoding="utf-8")
 
 home_css = root / "assets/css/portfolio-v2.css"
 home_css.write_text(home_css.read_text(encoding="utf-8") + """
-/* Three homepage-only hero destinations, maintaining the existing theme. */
-#featured-projects{scroll-margin-top:100px}
-.home-hero .home-hero-navigation{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
-.home-hero .home-hero-navigation .button{white-space:normal;min-height:44px;box-sizing:border-box}
+/* Paired homepage hero actions in two columns, maintaining the existing theme. */
+#featured-projects,.shop-section#apps,.shop-section#books{scroll-margin-top:100px}
+.home-hero .home-hero-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch;width:100%;max-width:520px}
+.home-hero .home-hero-navigation .button{white-space:normal;min-height:44px;box-sizing:border-box;justify-content:center;text-align:center}
 @media(max-width:760px){
   .home-hero .home-hero-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;max-width:470px}
   .home-hero .home-hero-navigation .button{justify-content:center;text-align:center;font-size:12px;padding:10px 8px;gap:5px;line-height:1.25}
-  .home-hero .home-hero-navigation .button:last-child{grid-column:1 / -1}
 }
 @media(max-width:340px){
   .home-hero .home-hero-navigation .button{font-size:11px;padding:9px 6px}
 }
 """, encoding="utf-8")
-print("PASS: bilingual homepage hero has three distinct validated destinations.")
+print("PASS: bilingual homepage hero has four paired actions with validated page and store anchors.")
