@@ -269,3 +269,83 @@ home_css.write_text(home_css.read_text(encoding="utf-8") + """
 }
 """, encoding="utf-8")
 print("PASS: bilingual homepage hero has four paired actions with validated page and store anchors.")
+
+
+# Public author profiles, supplied by the author, in EN/TR home and Contact.
+amazon_author = "https://www.amazon.com/author/bulentimat"
+goodreads_author = "https://www.goodreads.com/author/show/69755244.B_lent_mat"
+author_email = "author@bulentimat.ch"
+
+def author_profile_links(tr):
+    labels = (
+        (amazon_author, "amazon", "Amazon yazar profili" if tr else "Amazon Author", "amazon"),
+        (goodreads_author, "goodreads", "Goodreads yazar profili" if tr else "Goodreads Author", "goodreads"),
+    )
+    return '<div class="author-profile-links">' + ''.join(
+        f'<a class="author-profile-link" href="{url}" target="_blank" rel="noopener noreferrer">'
+        f'<span class="author-profile-brand {brand}" aria-hidden="true">{wordmark}</span>'
+        f'<span class="author-profile-label">{label}</span><span class="author-profile-arrow" aria-hidden="true">↗</span></a>'
+        for url, wordmark, label, brand in labels
+    ) + '</div>'
+
+author_styles = """
+<style id="author-profiles-20261126">
+.author-profile-strip{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:clamp(14px,2.4vw,22px);margin:16px 0}
+.author-profile-strip .section-kicker{display:block;margin-bottom:10px;font-size:10px;letter-spacing:.13em}
+.author-profile-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.author-profile-link{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px;padding:12px 14px;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--panel-soft);color:var(--text);text-decoration:none;box-sizing:border-box;min-height:60px}
+.author-profile-link:hover,.author-profile-link:focus-visible{border-color:var(--green)}
+.author-profile-brand{font-size:18px;line-height:1.1;letter-spacing:-.06em;font-weight:700;color:var(--text)}
+.author-profile-brand.amazon{font-family:Arial,sans-serif;position:relative;padding-bottom:4px}
+.author-profile-brand.amazon:after{content:"";position:absolute;bottom:0;left:22%;width:64%;height:5px;border-bottom:2px solid #d99843;border-radius:0 0 50% 50%;transform:rotate(-5deg)}
+.author-profile-brand.goodreads{font-family:Georgia,serif;font-weight:400;letter-spacing:-.08em}
+.author-profile-label{font-size:12px;font-weight:650;line-height:1.3;flex:1;min-width:0;overflow-wrap:anywhere}
+.author-profile-arrow{font-size:16px;line-height:1;color:var(--green);margin-left:auto}
+.author-contact-panel .author-profile-links{margin-top:12px}
+@media(max-width:600px){
+  .author-profile-link{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 4px;padding:10px 11px;min-height:62px}
+  .author-profile-brand{font-size:17px;grid-column:1;grid-row:1;justify-self:start}
+  .author-profile-label{grid-column:1;grid-row:2;font-size:11px}
+  .author-profile-arrow{grid-column:2;grid-row:1 / 3;align-self:center}
+}
+</style>
+"""
+for tr in (False, True):
+    prefix = "tr/" if tr else ""
+    home = root / (prefix + "index.html")
+    contact = root / (prefix + "contact/index.html")
+    links = author_profile_links(tr)
+    heading = "RESMÎ YAZAR PROFİLLERİ" if tr else "OFFICIAL AUTHOR PROFILES"
+    strip = ('<section class="author-profile-strip" aria-label="' + heading + '">'
+             '<span class="section-kicker">' + heading + '</span>' + links + '</section>')
+    doc = home.read_text(encoding="utf-8")
+    marker = '<div class="feature-grid portfolio-shop-grid" id="featured-projects"'
+    assert doc.count(marker) == 1, home
+    doc = doc.replace(marker, strip + '\n' + marker, 1)
+    doc = doc.replace("</head>", author_styles + "\n</head>", 1)
+    assert doc.index('class="author-profile-strip"') < doc.index('id="featured-books"'), home
+    for url in (amazon_author, goodreads_author):
+        assert doc.count('href="' + url + '"') == 1, (home, url)
+    home.write_text(doc, encoding="utf-8")
+
+    kicker = "YAZAR VE YAYINCILIK" if tr else "AUTHOR & PUBLISHING"
+    title = "Yazar iletişimi" if tr else "Author contact"
+    desc = ("Kitaplar, yayıncılık, basın ve edebî iş birlikleri için."
+            if tr else "For books, publishing, press and literary collaborations.")
+    email_label = "Yazar e-posta adresi" if tr else "Author email"
+    section = ('<section class="contact-panel author-contact-panel" id="author-contact">'
+               '<span class="section-kicker">' + kicker + '</span><h2>' + title + '</h2><p>' + desc + '</p>'
+               '<a href="mailto:' + author_email + '" class="contact-main-link"><span>' + email_label +
+               '<small>' + author_email + '</small></span><span class="contact-main-arrow" aria-hidden="true">↗</span></a>'
+               + links + '</section>\n')
+    doc = contact.read_text(encoding="utf-8")
+    marker = '<section class="contact-panel" id="official-projects">'
+    assert doc.count(marker) == 1, contact
+    doc = doc.replace(marker, section + marker, 1)
+    doc = doc.replace("</head>", author_styles + "\n</head>", 1)
+    for url in (amazon_author, goodreads_author, "mailto:" + author_email):
+        assert doc.count('href="' + url + '"') == 1, (contact, url)
+    assert doc.index('id="primary-contact"') < doc.index('id="author-contact"') < doc.index('id="official-projects"'), contact
+    assert 'mailto:info@bulentimat.ch' in doc and 'https://wa.me/' in doc, contact
+    contact.write_text(doc, encoding="utf-8")
+    print(f"PASS: author profiles above Books and author contact panel in {prefix or 'EN'} home/contact.")
