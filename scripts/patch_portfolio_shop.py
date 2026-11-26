@@ -220,3 +220,50 @@ for rel in ("shop/index.html", "tr/shop/index.html"):
         if item not in text:
             raise SystemExit(f"Shop product missing in {rel}: {item}")
 print("Validated bilingual homepage, Shop pages, store destinations and authentic brand artwork.")
+
+
+# Homepage hero: four distinct routes, with the projects CTA leading to the
+# existing combined showcase instead of duplicating the Apps destination.
+for tr in (False, True):
+    rel = "tr/index.html" if tr else "index.html"
+    page = root / rel
+    doc = page.read_text(encoding="utf-8")
+    items = (
+        ("#featured-projects", "Projeleri keşfet" if tr else "Explore projects", "button-primary", "↓"),
+        ("apps/", "Uygulamaları keşfet" if tr else "Explore apps", "button-ghost", "↗"),
+        ("books/", "Kitapları keşfet" if tr else "Explore books", "button-ghost", "↗"),
+        ("shop/", "Satın al" if tr else "Buy", "button-primary", "↗"),
+    )
+    actions = '<div class="hero-cta home-hero-navigation">' + ''.join(
+        f'<a class="button {style}" href="{href}">{label} <span aria-hidden="true">{arrow}</span></a>'
+        for href, label, style, arrow in items
+    ) + '</div>'
+    doc, n = re.subn(r'<div class="hero-cta">.*?</div>', lambda _: actions, doc, count=1, flags=re.S)
+    assert n == 1, rel
+    marker = '<div class="feature-grid portfolio-shop-grid"'
+    assert doc.count(marker) == 1, rel
+    doc = doc.replace(marker, marker + ' id="featured-projects"', 1)
+    doc, n = re.subn(r'(assets/css/portfolio-v2\.css)(?:\?[^"]*)?"', r'\1?v=20261126-home-nav"', doc, count=1)
+    assert n == 1, rel
+    assert actions.count('<a ') == 4 and doc.count('id="featured-projects"') == 1, rel
+    for href, label, _, _ in items:
+        assert f'href="{href}">{label} ' in actions, (rel, href)
+        if not href.startswith("#"):
+            assert (page.parent / href / "index.html").is_file(), (rel, href)
+    page.write_text(doc, encoding="utf-8")
+
+home_css = root / "assets/css/portfolio-v2.css"
+home_css.write_text(home_css.read_text(encoding="utf-8") + """
+/* Four homepage-only hero destinations, maintaining the existing theme. */
+#featured-projects{scroll-margin-top:100px}
+.home-hero .home-hero-navigation{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.home-hero .home-hero-navigation .button{white-space:normal;min-height:44px;box-sizing:border-box}
+@media(max-width:760px){
+  .home-hero .home-hero-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;max-width:470px}
+  .home-hero .home-hero-navigation .button{justify-content:center;text-align:center;font-size:12px;padding:10px 8px;gap:5px;line-height:1.25}
+}
+@media(max-width:340px){
+  .home-hero .home-hero-navigation .button{font-size:11px;padding:9px 6px}
+}
+""", encoding="utf-8")
+print("PASS: bilingual homepage hero has four distinct validated destinations.")
